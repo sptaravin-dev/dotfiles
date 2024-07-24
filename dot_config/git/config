@@ -1,0 +1,105 @@
+[user]
+    name = Aravinth 
+    email = sptaravin-dev@gmail.com
+
+[github]
+    user = sptaravin-dev
+
+[core]
+    editor = vim
+    autocrlf = input
+    whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
+
+[color]
+    ui = true
+
+[alias]
+    # Git status
+    st = status
+
+    # Git commit
+    cm = commit
+    amend = commit --amend
+
+    # Git checkout
+    co = checkout
+    cob = checkout -b
+
+    # Git branch
+    br = branch
+    brd = branch -d
+    bra = branch -a
+
+    # Git add
+    a = add
+
+    # Git log
+    lg = log --oneline --graph --decorate
+    lga = log --oneline --graph --decorate --all
+
+    # Git diff
+    df = diff
+    dc = diff --cached
+
+    # Git fetch and pull
+    f = fetch
+    pl = pull
+    p = push
+
+    # Git remote
+    r = remote
+    rv = remote -v
+
+    # Git merge and rebase
+    m = merge
+    rb = rebase
+    rbc = rebase --continue
+    rba = rebase --abort
+
+    # Git reset
+    rs = reset
+    rsh = reset --hard
+    rsm = reset --mixed
+    rso = reset --soft
+
+    # Git stash
+    stsh = stash
+    stshp = stash pop
+    stshl = stash list
+    stshs = stash save
+
+    # Git clean
+    clean = clean -fd
+
+    # Show current branch
+    cb = "!git branch | grep '\\*' | sed 's/* //'"
+
+    # Show list of aliases
+    aliases = "!git config -l | grep alias | cut -c 7-"
+
+    # Shortcuts for common workflows
+    undo = reset --soft HEAD~1
+    unstage = reset HEAD --
+    last = log -1 HEAD
+
+[merge]
+    tool = vimdiff
+
+[diff]
+    tool = vimdiff
+
+[push]
+    default = simple
+
+[pull]
+    rebase = false
+
+[credential]
+    helper = cache
+    cachetimeout = 3600
+
+[rerere]
+    enabled = true
+
+[interactive]
+    diffFilter = diff-so-fancy --patch
