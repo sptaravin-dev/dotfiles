@@ -1,0 +1,84 @@
+# Set XDG base directories if not already set
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+
+# Aliases
+alias ll='ls -alF'
+alias rm='trash-put'
+alias zshrc="vim $XDG_CONFIG_HOME/zsh/.zshrc"
+alias zshrcs="source $XDG_CONFIG_HOME/zsh/.zshrc"
+
+# Editors
+export VISUAL=vim
+export EDITOR=vim
+
+# Spaceship theme
+source "$HOME/.zsh/spaceship/spaceship.zsh"
+
+# zsh history
+export HISTFILE="$XDG_STATE_HOME/zsh/history"
+
+# Git plugin
+plugins=(git)
+
+# Prompt
+SPACESHIP_PROMPT_ORDER=(
+  user          # Username section
+  dir           # Current directory section
+  host          # Hostname section
+  git           # Git section (git_branch + git_status)
+  hg            # Mercurial section (hg_branch  + hg_status)
+  exec_time     # Execution time
+  line_sep      # Line break
+  jobs          # Background jobs indicator
+  exit_code     # Exit code section
+  char          # Prompt character
+)
+SPACESHIP_USER_SHOW=always
+SPACESHIP_PROMPT_ADD_NEWLINE=false
+SPACESHIP_CHAR_SYMBOL="❯"
+SPACESHIP_CHAR_SUFFIX=" "
+SPACESHIP_CHAR_SYMBOL_SUCCESS='❯'
+SPACESHIP_CHAR_SYMBOL_FAILURE='❯'
+
+# Arrow-key bindings
+### ctrl+arrows
+bindkey "\e[1;5C" forward-word
+bindkey "\e[1;5D" backward-word
+# urxvt
+bindkey "\eOc" forward-word
+bindkey "\eOd" backward-word
+
+### ctrl+delete
+bindkey "\e[3;5~" kill-word
+# urxvt
+bindkey "\e[3^" kill-word
+
+### ctrl+backspace
+bindkey '^H' backward-kill-word
+
+### ctrl+shift+delete
+bindkey "\e[3;6~" kill-line
+# urxvt
+bindkey "\e[3@" kill-line
+
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# zcompdump
+compinit -d "$XDG_CACHE_HOME"/zsh/zcompdump-"$ZSH_VERSION"
+
+# zsh history
+export HISTFILE="$XDG_STATE_HOME"/zsh/history
+
+# wget hsts
+alias wget=wget --hsts-file="$XDG_DATA_HOME/wget-hsts"
+setopt NO_CLOBBER
+
+# nvim path
+export PATH="$PATH:/opt/nvim-linux64/bin"
+
+# fzf init
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
