@@ -95,8 +95,8 @@
     rebase = false
 
 [credential]
-    helper = cache
     cachetimeout = 3600
+	helper = !gh auth git-credential
 
 [rerere]
     enabled = true
