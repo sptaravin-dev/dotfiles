@@ -87,3 +87,6 @@ export PATH="$PATH:/opt/nvim-linux64/bin"
 
 # fzf init
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# terminal vim
+set -o vi

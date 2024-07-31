@@ -8,3 +8,5 @@ export DOTNET_CLI_HOME="$XDG_DATA_HOME"/dotnet
 export GNUPGHOME="$XDG_DATA_HOME"/gnupg
 export RUSTUP_HOME="$XDG_DATA_HOME"/rustup
 export AZURE_CONFIG_DIR="$XDG_DATA_HOME"/azure
+
+export ZDOTDIR="$XDG_CONFIG_HOME"/zsh
