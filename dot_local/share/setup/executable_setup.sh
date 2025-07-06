@@ -13,6 +13,9 @@ SCRIPTS_DIR="$HOME/.local/share/setup/scripts"
 source "$SCRIPTS_DIR/common.sh"
 source "$SCRIPTS_DIR/detect_os.sh"
 
+echo "✅ Generated chezmoi zsh completion"
+source "$SCRIPTS_DIR/install_chezmoi_completion.sh"
+
 echo "📦 Installing system packages..."
 source "$SCRIPTS_DIR/install_packages.sh"
 
