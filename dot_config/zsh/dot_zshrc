@@ -24,6 +24,12 @@ alias la='ls -lathr'
 alias ll='ls -alF'
 alias tl='tree -L'
 
+# safe deletion of files
+rm() {
+  "$HOME/.local/bin/trash" "$@"
+}
+	  
+
 # ~~~~~~~~~~~~~~~ Theme ~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Spaceship theme

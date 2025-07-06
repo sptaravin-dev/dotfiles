@@ -9,5 +9,4 @@ export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 
 # add bin path
 export PATH="$HOME/bin:$PATH"
-
-
+export PATH="$HOME/.local/bin:$PATH"

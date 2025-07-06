@@ -1,6 +1,13 @@
 set -euo pipefail
 
-SCRIPTS_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi/scripts"
+LOGFILE="$HOME/.local/share/setup/install.log"
+mkdir -p "$(dirname "$LOGFILE")"
+
+exec > >(awk '{ print strftime("[%Y-%m-%d %H:%M:%S]"), $0; fflush(); }' | tee -a "$LOGFILE") 2>&1
+
+echo "=== Setup started at $(date) ==="
+
+SCRIPTS_DIR="$HOME/.local/share/setup/scripts"
 
 # shellcheck source=/dev/null
 source "$SCRIPTS_DIR/common.sh"
@@ -16,6 +23,6 @@ echo "🚀 Installing Spaceship Prompt..."
 source "$SCRIPTS_DIR/install_spaceship.sh"
 
 echo "🧺 Setting up safe-delete system..."
-source "$SCRIPTS_DIR/install_safe_delete.sh"
+source "$SCRIPTS_DIR/install_safe_deletion.sh"
 
 echo "✅ Setup complete."
