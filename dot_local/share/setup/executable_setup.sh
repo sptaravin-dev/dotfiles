@@ -1,4 +1,4 @@
-et -euo pipefail
+set -euo pipefail
 
 SCRIPTS_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi/scripts"
 
@@ -14,5 +14,8 @@ source "$SCRIPTS_DIR/install_fonts.sh"
 
 echo "🚀 Installing Spaceship Prompt..."
 source "$SCRIPTS_DIR/install_spaceship.sh"
+
+echo "🧺 Setting up safe-delete system..."
+source "$SCRIPTS_DIR/install_safe_delete.sh"
 
 echo "✅ Setup complete."
