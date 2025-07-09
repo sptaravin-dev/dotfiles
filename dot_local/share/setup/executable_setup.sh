@@ -32,14 +32,17 @@ source "$SCRIPTS_DIR/install_spaceship.sh"
 echo "🧺 Setting up safe-delete system..."
 source "$SCRIPTS_DIR/install_safe_deletion.sh"
 
-# Set Zsh as default shell
-echo "🐚 Configuring zsh as default shell..."
-
 echo "📂 Installing eza..."
 source "$SCRIPTS_DIR/install_eza.sh"
 
 echo "🛠 Installing LazyGit..."
 source "$SCRIPTS_DIR/install_lazygit.sh"
+
+echo "🔐 Installing and configuring GPG key..."
+source "$SCRIPTS_DIR/install_gpg.sh"
+
+# Set Zsh as default shell
+echo "🐚 Configuring zsh as default shell..."
 
 if grep -qi microsoft /proc/version; then
   echo "⚠️  WSL detected: Adding fallback zsh exec to ~/.bashrc..."
