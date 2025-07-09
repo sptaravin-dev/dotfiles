@@ -1,7 +1,7 @@
 
 # 🛠 Aravinth's Dotfiles
 
-A cross-platform (WSL, macOS, Linux) developer environment powered by [chezmoi](https://www.chezmoi.io/) and compliant with the [XDG Base Directory Specification]([https://specifications.freedesktop.org/basedir-spec/latest/ar01s03.html](https://specifications.freedesktop.org/basedir-spec/latest/).
+A cross-platform (WSL, macOS, Linux) developer environment powered by [chezmoi](https://www.chezmoi.io/) and compliant with the [XDG Base Directory Specification]([https://specifications.freedesktop.org/basedir-spec/latest/ar01s03.html](https://specifications.freedesktop.org/basedir-spec/latest/)).
 
 ---
 
