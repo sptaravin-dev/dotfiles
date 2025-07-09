@@ -100,13 +100,7 @@ git remote set-url origin git@github.com:sptaravin-dev/dotfiles.git
 Generate an SSH key:
 
 ```bash
-ssh-keygen -t ed25519 -C "sptaravin.dev@gmail.com"
-```
-
-Save it as:
-
-```text
-~/.ssh/id_ed25519.sptaravin-dev.github.home
+ssh-keygen -t ed25519 -C "sptaravin.dev@gmail.com" -f ~/.ssh/id_ed25519.sptaravin-dev.github.home
 ```
 
 Add the key to your agent:
