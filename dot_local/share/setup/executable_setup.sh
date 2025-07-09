@@ -1,4 +1,8 @@
+#!/bin/bash
+
 set -euo pipefail
+
+export PATH="$HOME/bin:$PATH"
 
 LOGFILE="$HOME/.local/share/setup/install.log"
 mkdir -p "$(dirname "$LOGFILE")"

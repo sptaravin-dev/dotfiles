@@ -1,0 +1,17 @@
+[user]
+    name = Aravinth Tamilarasan
+    email = sptaravin.dev@gmail.com
+
+[core]
+    editor = vim
+    autocrlf = input
+
+[color]
+    ui = auto
+
+[alias]
+    st = status
+    co = checkout
+    br = branch
+    ci = commit
+    df = diff
