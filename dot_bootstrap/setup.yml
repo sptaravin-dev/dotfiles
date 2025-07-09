@@ -1,0 +1,99 @@
+---
+- name: Dotfiles Bootstrap Setup
+  hosts: localhost
+  become: true
+  connection: local
+  vars:
+    zsh_config_dir: "{{ ansible_env.XDG_CONFIG_HOME | default(ansible_env.HOME + '/.config') }}/zsh"
+
+  tasks:
+    - name: Get my user
+      ansible.builtin.set_fact:
+        remote_regular_user: "{{ ansible_env.SUDO_USER or ansible_user_id }}"
+
+    - name: Install Packages
+      ansible.builtin.apt:
+        name:
+          - curl
+          - git
+          - gnupg2
+          - pinentry-curses
+          - unzip
+          - zsh
+          - wget
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Change shell to zsh
+      ansible.builtin.user:
+        name: "{{ remote_regular_user }}"
+        shell: /usr/bin/zsh
+
+    - name: Create /etc/apt/keyrings directory
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+      when: ansible_os_family == "Debian"
+
+    - name: Install Eza
+      shell: |
+        wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+        echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/gierens.list
+        apt update
+        apt install -y eza
+      when: ansible_os_family == "Debian"
+
+    - name: Install LazyGit
+      shell: |
+        LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": *"v\K[^"]*')
+        curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
+        tar xf lazygit.tar.gz lazygit
+        install lazygit -D -t /usr/local/bin/
+      when: ansible_os_family == "Debian"
+
+    - name: Install Safe Deletion
+      shell: |
+        set -euo pipefail
+        TRASH_DIR="$HOME/.local/share/Trash/files"
+        INFO_DIR="$HOME/.local/share/Trash/info"
+        TRASH_BIN="$HOME/.local/bin/trash"
+
+        mkdir -p "$TRASH_DIR" "$INFO_DIR" "$(dirname "$TRASH_BIN")"
+
+        cat > "$TRASH_BIN" << 'EOFF'
+        #!/bin/bash
+        set -euo pipefail
+
+        TRASH_DIR="$HOME/.local/share/Trash/files"
+        INFO_DIR="$HOME/.local/share/Trash/info"
+        TIMESTAMP=$(date +%s)
+
+        for path in "$@"; do
+          if [ ! -e "$path" ]; then
+            echo "Error: '$path' not found." >&2
+            continue
+          fi
+
+          filename=$(basename "$path")
+          unique="${filename}_${TIMESTAMP}_$RANDOM"
+          mv "$path" "$TRASH_DIR/$unique"
+          echo "Path=$path" > "$INFO_DIR/$unique.trashinfo"
+          echo "DeletionDate=$(date --iso-8601=seconds)" >> "$INFO_DIR/$unique.trashinfo"
+        done
+        EOFF
+
+        chmod +x "$TRASH_BIN"
+      args:
+        executable: /bin/bash
+      when: ansible_os_family == "Debian"
+
+    - name: Clone Spaceship Prompt if not already installed
+      git:
+        repo: https://github.com/spaceship-prompt/spaceship-prompt.git
+        dest: "{{ zsh_config_dir }}/spaceship"
+        depth: 1
+      when: ansible_os_family == "Debian"
+
+
