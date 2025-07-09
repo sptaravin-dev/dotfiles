@@ -32,4 +32,26 @@ source "$SCRIPTS_DIR/install_spaceship.sh"
 echo "🧺 Setting up safe-delete system..."
 source "$SCRIPTS_DIR/install_safe_deletion.sh"
 
+# Set Zsh as default shell
+echo "🐚 Configuring zsh as default shell..."
+
+if grep -qi microsoft /proc/version; then
+  echo "⚠️  WSL detected: Adding fallback zsh exec to ~/.bashrc..."
+  if ! grep -q "exec zsh" "$HOME/.bashrc"; then
+    echo -e "
+# Launch zsh automatically in WSL
+if [ -t 1 ]; then
+  exec zsh
+fi" >> "$HOME/.bashrc"
+    echo "✅ Added zsh launch fallback to ~/.bashrc"
+  fi
+else
+  ZSH_PATH=$(command -v zsh)
+  if ! grep -q "$ZSH_PATH" /etc/shells; then
+    echo "$ZSH_PATH" | sudo tee -a /etc/shells
+  fi
+  chsh -s "$ZSH_PATH"
+  echo "✅ Default shell changed to zsh"
+fi
+
 echo "✅ Setup complete."
