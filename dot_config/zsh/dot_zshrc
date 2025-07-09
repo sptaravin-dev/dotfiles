@@ -23,6 +23,9 @@ alias ls='ls --color=auto'
 alias la='ls -lathr'
 alias ll='ls -alF'
 alias tl='tree -L'
+alias l="eza -l --icons --git -a"
+alias lt="eza --tree --level=2 --long --icons --git"
+alias ltree="eza --tree --level=2  --icons --git"
 
 # safe deletion of files
 rm() {
