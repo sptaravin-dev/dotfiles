@@ -1,0 +1,10 @@
+[user]
+    name = Aravinth Tamilarasan
+    email = sptaravin.dev@gmail.com
+    signingkey = {{ .gpgKeyID }}
+
+[commit]
+    gpgsign = true
+
+[gpg]
+    program = gpg
