@@ -81,7 +81,7 @@ If SSH isn't set up yet:
 After initializing chezmoi, set the Git remote URL explicitly:
 
 ```bash
-cd "$(chezmoi source-path)"
+cz cd
 git remote set-url origin git@github.com:sptaravin-dev/dotfiles.git
 ```
 
