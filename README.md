@@ -78,13 +78,19 @@ If SSH isn't set up yet:
 ~/bin/chezmoi init --apply https://github.com/sptaravin-dev/dotfiles.git
 ```
 
----
-
-### 5. Set Up Git
+After initializing chezmoi, set the Git remote URL explicitly:
 
 ```bash
-git config --global user.name "Aravinth Tamilarasan"
-git config --global user.email "sptaravin.dev@gmail.com"
+cd "$(chezmoi source-path)"
+git remote set-url origin git@github.com:sptaravin-dev/dotfiles.git
+```
+
+---
+
+### 5. Run Set up script
+
+```bash
+~/.local/share/setup/setup.sh
 ```
 
 ---
