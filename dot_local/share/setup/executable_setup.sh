@@ -35,6 +35,9 @@ source "$SCRIPTS_DIR/install_safe_deletion.sh"
 # Set Zsh as default shell
 echo "🐚 Configuring zsh as default shell..."
 
+echo "📂 Installing eza..."
+source "$SCRIPTS_DIR/install_eza.sh"
+
 if grep -qi microsoft /proc/version; then
   echo "⚠️  WSL detected: Adding fallback zsh exec to ~/.bashrc..."
   if ! grep -q "exec zsh" "$HOME/.bashrc"; then
