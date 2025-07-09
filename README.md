@@ -69,7 +69,8 @@ echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshenv
 With SSH:
 
 ```bash
-~/bin/chezmoi init --apply git@github.com:sptaravin-dev/dotfiles.git
+export GITHUB_USERNAME=sptaravin-dev
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply $GITHUB_USERNAME
 ```
 
 If SSH isn't set up yet:
