@@ -1,5 +1,5 @@
 ---
-- name: Dotfiles Bootstrap Setup
+- name: Dotfiles Bootstrap Setup for Debian
   hosts: localhost
   become: true
   connection: local
