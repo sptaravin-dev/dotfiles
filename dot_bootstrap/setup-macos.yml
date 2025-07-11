@@ -16,8 +16,6 @@
         name:
           - curl
           - git
-          - gnupg
-          - pinentry
           - unzip
           - zsh
           - wget
