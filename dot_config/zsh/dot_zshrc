@@ -27,44 +27,9 @@ alias l="eza -l --icons --git -a"
 alias lt="eza --tree --level=2 --long --icons --git"
 alias ltree="eza --tree --level=2  --icons --git"
 
-# safe deletion of files
-rm() {
-  "$HOME/.local/bin/trash" "$@"
-}
-	  
-
 # ~~~~~~~~~~~~~~~ Theme ~~~~~~~~~~~~~~~~~~~~~~~~
-
-# Spaceship theme
-source "$ZDOTDIR/spaceship/spaceship.zsh"
-
-# Prompt
-SPACESHIP_PROMPT_ORDER=(
-  user          # Username section
-  dir           # Current directory section
-  host          # Hostname section
-  git           # Git section (git_branch + git_status)
-  hg            # Mercurial section (hg_branch  + hg_status)
-  exec_time     # Execution time
-  line_sep      # Line break
-  venv          # Virtual Environment
-  jobs          # Background jobs indicator
-  exit_code     # Exit code section
-  char          # Prompt character
-)
-SPACESHIP_USER_SHOW=always
-SPACESHIP_PROMPT_ADD_NEWLINE=false
-SPACESHIP_CHAR_SYMBOL="❯"
-SPACESHIP_CHAR_SUFFIX=" "
-SPACESHIP_CHAR_SYMBOL_SUCCESS='❯'
-SPACESHIP_CHAR_SYMBOL_FAILURE='❯'
-
-# Virtual Environment settings
-SPACESHIP_VENV_SHOW=true        # Enable venv display
-SPACESHIP_VENV_PREFIX='('       # Prefix for the venv name
-SPACESHIP_VENV_SUFFIX=') '      # Suffix for the venv name
-SPACESHIP_VENV_SYMBOL='🐍 '     # Symbol for the venv
-SPACESHIP_VENV_GENERIC_NAMES=true # Show venv for generic names like 'venv' or '.venv'
+# Load Starship prompt
+eval "$(starship init zsh)"
 
 # ~~~~~~~~~~~~~~~ Autocompletion ~~~~~~~~~~~~~~~~~~~~~~~~
 

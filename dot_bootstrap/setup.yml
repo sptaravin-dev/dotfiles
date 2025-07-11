@@ -4,7 +4,7 @@
   become: true
   connection: local
   vars:
-    zsh_config_dir: "{{ ansible_env.XDG_CONFIG_HOME | default(ansible_env.HOME + '/.config') }}/zsh"
+    zsh_config_dir: "/home/{{ remote_regular_user }}/.config/zsh"
 
   tasks:
     - name: Get my user
@@ -30,70 +30,29 @@
         name: "{{ remote_regular_user }}"
         shell: /usr/bin/zsh
 
-    - name: Create /etc/apt/keyrings directory
-      file:
-        path: /etc/apt/keyrings
-        state: directory
-        mode: '0755'
-      when: ansible_os_family == "Debian"
+    - name: Install Nushell (Debian-based only)
+      block:
+        - name: Add the Nushell GPG key
+          ansible.builtin.get_url:
+            url: https://apt.fury.io/nushell/gpg.key
+            dest: /etc/apt/trusted.gpg.d/fury-nushell.gpg
+            mode: '0644'
 
-    - name: Install Eza
-      shell: |
-        wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
-        echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/gierens.list
-        apt update
-        apt install -y eza
-      when: ansible_os_family == "Debian"
+        - name: Add the Nushell APT repository
+          ansible.builtin.apt_repository:
+            repo: "deb https://apt.fury.io/nushell/ /"
+            filename: fury
+            state: present
 
-    - name: Install LazyGit
-      shell: |
-        LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": *"v\K[^"]*')
-        curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
-        tar xf lazygit.tar.gz lazygit
-        install lazygit -D -t /usr/local/bin/
-      when: ansible_os_family == "Debian"
+        - name: Update apt cache after adding Nushell repo
+          ansible.builtin.apt:
+            update_cache: yes
+            cache_valid_time: 3600
 
-    - name: Install Safe Deletion
-      shell: |
-        set -euo pipefail
-        TRASH_DIR="$HOME/.local/share/Trash/files"
-        INFO_DIR="$HOME/.local/share/Trash/info"
-        TRASH_BIN="$HOME/.local/bin/trash"
-
-        mkdir -p "$TRASH_DIR" "$INFO_DIR" "$(dirname "$TRASH_BIN")"
-
-        cat > "$TRASH_BIN" << 'EOFF'
-        #!/bin/bash
-        set -euo pipefail
-
-        TRASH_DIR="$HOME/.local/share/Trash/files"
-        INFO_DIR="$HOME/.local/share/Trash/info"
-        TIMESTAMP=$(date +%s)
-
-        for path in "$@"; do
-          if [ ! -e "$path" ]; then
-            echo "Error: '$path' not found." >&2
-            continue
-          fi
-
-          filename=$(basename "$path")
-          unique="${filename}_${TIMESTAMP}_$RANDOM"
-          mv "$path" "$TRASH_DIR/$unique"
-          echo "Path=$path" > "$INFO_DIR/$unique.trashinfo"
-          echo "DeletionDate=$(date --iso-8601=seconds)" >> "$INFO_DIR/$unique.trashinfo"
-        done
-        EOFF
-
-        chmod +x "$TRASH_BIN"
-      args:
-        executable: /bin/bash
-      when: ansible_os_family == "Debian"
-
-    - name: Clone Spaceship Prompt if not already installed
-      git:
-        repo: https://github.com/spaceship-prompt/spaceship-prompt.git
-        dest: "{{ zsh_config_dir }}/spaceship"
-        depth: 1
-      when: ansible_os_family == "Debian"
-
+        - name: Install Nushell
+          ansible.builtin.apt:
+            name: nushell
+            state: present
+      when: ansible_facts['os_family'] == "Debian"
+      tags: [nushell]
 
