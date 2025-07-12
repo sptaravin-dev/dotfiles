@@ -30,6 +30,42 @@
         name: "{{ remote_regular_user }}"
         shell: /usr/bin/zsh
 
+    - name: Create SSH key
+      block:
+        - name: create .ssh directory if needed
+          ansible.builtin.file:
+            path: /home/{{ remote_regular_user }}/.ssh
+            state: directory
+            mode: '0700'
+            owner: "{{ remote_regular_user }}"
+            group: "{{ remote_regular_user }}"
+
+        - name: gen SSH key
+          community.crypto.openssh_keypair:
+            path: "/home/{{ remote_regular_user }}/.ssh/id_ed25519.sptaravin-dev.github.{{ remote_regular_user }}"
+            type: ed25519
+            force: false
+            comment: "sptaravin.dev@gmail.com"
+
+    - name: Install Neovim
+      block:
+        - name: Download latest Neovim tarball
+          ansible.builtin.get_url:
+            url: https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+            dest: /tmp/nvim-linux-x86_64.tar.gz
+            mode: '0644'
+
+        - name: Remove /opt/nvim
+          ansible.builtin.command: rm -rf /opt/nvim
+          become: true
+
+        - name: Extract Neovim to /opt
+          ansible.builtin.command: tar -C /opt -xzf /tmp/nvim-linux-x86_64.tar.gz
+          become: true
+
+      when: ansible_os_family == "Debian"
+      tags: [nvim]
+
     - name: Install Nushell (Debian-based only)
       block:
         - name: Add the Nushell GPG key
@@ -55,4 +91,13 @@
             state: present
       when: ansible_facts['os_family'] == "Debian"
       tags: [nushell]
+
+
+    - name: Install Eza
+      shell: |
+        wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+        echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/gierens.list
+        apt update
+        apt install -y eza
+      when: ansible_os_family == "Debian"
 
