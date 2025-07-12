@@ -199,3 +199,12 @@
       become: true
       tags: [lazygit]
             
+    - name: Install Pyenv
+      become: false
+      become_user: "{{ remote_regular_user }}"
+      ansible.builtin.shell: |
+        curl -fsSL https://pyenv.run | bash 
+      args:
+        executable: /bin/bash
+        chdir: "/home/{{ remote_regular_user }}"
+      tags: [pyenv]

@@ -42,3 +42,10 @@ eval "$(ssh-agent -s)"
 
 # ~~~~~~~~~~~~~~~ path ~~~~~~~~~~~~~~~~~~~~~~~~
 export PATH=$PATH:/usr/local/go/bin
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+
+# Initialize pyenv if installed
+if command -v pyenv > /dev/null 2>&1; then
+  eval "$(pyenv init - zsh)"
+fi
