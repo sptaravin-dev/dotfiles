@@ -35,3 +35,6 @@ eval "$(starship init zsh)"
 
 source "$XDG_CONFIG_HOME/chezmoi/chezmoi-completion.zsh"
 compdef cz=chezmoi
+
+# ~~~~~~~~~~~~~~~ ssh ~~~~~~~~~~~~~~~~~~~~~~~~
+eval "$(ssh-agent -s)"
