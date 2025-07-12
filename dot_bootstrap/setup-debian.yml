@@ -24,10 +24,12 @@
         state: present
         update_cache: yes
       when: ansible_os_family == "Debian"
+
     - name: Change shell to zsh
       ansible.builtin.user:
         name: "{{ remote_regular_user }}"
         shell: /usr/bin/zsh
+
     - name: Create SSH key
       block:
         - name: create .ssh directory if needed
@@ -37,6 +39,7 @@
             mode: '0700'
             owner: "{{ remote_regular_user }}"
             group: "{{ remote_regular_user }}"
+
         - name: gen SSH key
           community.crypto.openssh_keypair:
             path: "/home/{{ remote_regular_user }}/.ssh/id_ed25519.sptaravin-dev.github.{{ remote_regular_user }}"
@@ -46,6 +49,7 @@
             owner: "{{ remote_regular_user }}"
             group: "{{ remote_regular_user }}"
             mode: '0600'
+
     - name: Create SSH config for GitHub
       ansible.builtin.copy:
         dest: /home/{{ remote_regular_user }}/.ssh/config
@@ -59,6 +63,7 @@
         group: "{{ remote_regular_user }}"
         mode: '0600'
       tags: [ssh, github]
+
     - name: Install Neovim
       block:
         - name: Download latest Neovim tarball
@@ -66,9 +71,11 @@
             url: https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
             dest: /tmp/nvim-linux-x86_64.tar.gz
             mode: '0644'
+
         - name: Remove /opt/nvim
           ansible.builtin.command: rm -rf /opt/nvim
           become: true
+
         - name: Extract Neovim to /opt
           ansible.builtin.unarchive:
             src: /tmp/nvim-linux-x86_64.tar.gz
@@ -76,6 +83,7 @@
             remote_src: yes
             creates: /opt/nvim
           become: true
+
         - name: Rename /opt/nvim-linux-x86_64 to /opt/nvim
           ansible.builtin.command: mv /opt/nvim-linux-x86_64 /opt/nvim
           args: 
@@ -83,6 +91,7 @@
           become: true
       when: ansible_os_family == "Debian"
       tags: [nvim]
+      
     - name: Install Nushell (Debian-based only)
       block:
         - name: Ensure keyring directory exists
@@ -110,9 +119,48 @@
             state: present
       when: ansible_facts['os_family'] == "Debian"
       tags: [nushell]
+
     - name: Install Starship prompt
       ansible.builtin.shell: |
         curl -sS https://starship.rs/install.sh | sh -s -- -y
       args:
         creates: /usr/local/bin/starship
       tags: [starship]
+
+    - name: Install Go (Debian-based only)
+      block:
+        - name: Get latest Go version string
+          ansible.builtin.uri:
+            url: https://go.dev/VERSION?m=text
+            return_content: yes
+          register: go_version_response
+
+        - name: Set Go version fact without 'go' prefix, only first line
+          ansible.builtin.set_fact:
+            go_version: "{{ (go_version_response.content.splitlines()[0]) | regex_replace('^go', '') }}"
+
+        - name: Download Go tarball
+          ansible.builtin.get_url:
+            url: "https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz"
+            dest: "/tmp/go{{ go_version }}.linux-amd64.tar.gz"
+            mode: '0644'
+
+        - name: Remove any existing Go installation
+          ansible.builtin.file:
+            path: /usr/local/go
+            state: absent
+
+        - name: Extract Go tarball to /usr/local
+          ansible.builtin.unarchive:
+            src: "/tmp/go{{ go_version }}.linux-amd64.tar.gz"
+            dest: /usr/local
+            remote_src: yes
+
+        - name: Ensure Go bin directory is in system PATH
+          ansible.builtin.lineinfile:
+            path: /etc/profile.d/go.sh
+            create: yes
+            line: 'export PATH=$PATH:/usr/local/go/bin'
+            state: present
+            mode: '0755'
+

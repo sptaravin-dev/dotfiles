@@ -38,3 +38,7 @@ compdef cz=chezmoi
 
 # ~~~~~~~~~~~~~~~ ssh ~~~~~~~~~~~~~~~~~~~~~~~~
 eval "$(ssh-agent -s)"
+
+
+# ~~~~~~~~~~~~~~~ path ~~~~~~~~~~~~~~~~~~~~~~~~
+export PATH=$PATH:/usr/local/go/bin
