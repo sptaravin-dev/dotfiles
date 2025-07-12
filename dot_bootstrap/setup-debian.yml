@@ -5,12 +5,10 @@
   connection: local
   vars:
     zsh_config_dir: "/home/{{ remote_regular_user }}/.config/zsh"
-
   tasks:
     - name: Get my user
       ansible.builtin.set_fact:
         remote_regular_user: "{{ ansible_env.SUDO_USER or ansible_user_id }}"
-
     - name: Install Packages
       ansible.builtin.apt:
         name:
@@ -21,15 +19,15 @@
           - unzip
           - zsh
           - wget
+          - build-essential
+          - clang
         state: present
         update_cache: yes
       when: ansible_os_family == "Debian"
-
     - name: Change shell to zsh
       ansible.builtin.user:
         name: "{{ remote_regular_user }}"
         shell: /usr/bin/zsh
-
     - name: Create SSH key
       block:
         - name: create .ssh directory if needed
@@ -39,7 +37,6 @@
             mode: '0700'
             owner: "{{ remote_regular_user }}"
             group: "{{ remote_regular_user }}"
-
         - name: gen SSH key
           community.crypto.openssh_keypair:
             path: "/home/{{ remote_regular_user }}/.ssh/id_ed25519.sptaravin-dev.github.{{ remote_regular_user }}"
@@ -49,7 +46,6 @@
             owner: "{{ remote_regular_user }}"
             group: "{{ remote_regular_user }}"
             mode: '0600'
-
     - name: Create SSH config for GitHub
       ansible.builtin.copy:
         dest: /home/{{ remote_regular_user }}/.ssh/config
@@ -63,7 +59,6 @@
         group: "{{ remote_regular_user }}"
         mode: '0600'
       tags: [ssh, github]
-
     - name: Install Neovim
       block:
         - name: Download latest Neovim tarball
@@ -71,18 +66,23 @@
             url: https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
             dest: /tmp/nvim-linux-x86_64.tar.gz
             mode: '0644'
-
         - name: Remove /opt/nvim
           ansible.builtin.command: rm -rf /opt/nvim
           become: true
-
         - name: Extract Neovim to /opt
-          ansible.builtin.command: tar -C /opt -xzf /tmp/nvim-linux-x86_64.tar.gz
+          ansible.builtin.unarchive:
+            src: /tmp/nvim-linux-x86_64.tar.gz
+            dest: /opt
+            remote_src: yes
+            creates: /opt/nvim
           become: true
-
+        - name: Rename /opt/nvim-linux-x86_64 to /opt/nvim
+          ansible.builtin.command: mv /opt/nvim-linux-x86_64 /opt/nvim
+          args: 
+            creates: /opt/nvim
+          become: true
       when: ansible_os_family == "Debian"
       tags: [nvim]
-
     - name: Install Nushell (Debian-based only)
       block:
         - name: Ensure keyring directory exists
@@ -90,32 +90,26 @@
             path: /etc/apt/keyrings
             state: directory
             mode: '0755'
-    
         - name: Download and dearmor the Nushell GPG key
           ansible.builtin.shell: |
             curl -fsSL https://apt.fury.io/nushell/gpg.key | gpg --dearmor -o /etc/apt/keyrings/fury-nushell.gpg
           args:
             creates: /etc/apt/keyrings/fury-nushell.gpg
-    
         - name: Add the Nushell APT repository
           ansible.builtin.apt_repository:
             repo: "deb [signed-by=/etc/apt/keyrings/fury-nushell.gpg] https://apt.fury.io/nushell/ /"
             filename: fury-nushell
             state: present
-    
         - name: Update apt cache after adding Nushell repo
           ansible.builtin.apt:
             update_cache: yes
             cache_valid_time: 3600
-    
         - name: Install Nushell
           ansible.builtin.apt:
             name: nushell
             state: present
-    
       when: ansible_facts['os_family'] == "Debian"
       tags: [nushell]
-
     - name: Install Starship prompt
       ansible.builtin.shell: |
         curl -sS https://starship.rs/install.sh | sh -s -- -y
