@@ -35,8 +35,6 @@
           - libxmlsec1-dev
           - libffi-dev
           - liblzma-dev
-          - nodejs
-          - npm
         state: present
         update_cache: yes
       when: ansible_os_family == "Debian"
@@ -215,12 +213,85 @@
       become: true
       tags: [lazygit]
             
-    - name: Install Pyenv
-      become: false
-      become_user: "{{ remote_regular_user }}"
-      ansible.builtin.shell: |
-        curl -fsSL https://pyenv.run | bash 
-      args:
-        executable: /bin/bash
-        chdir: "/home/{{ remote_regular_user }}"
-      tags: [pyenv]
+    # - name: Install Pyenv
+    #   become: false
+    #   become_user: "{{ remote_regular_user }}"
+    #   ansible.builtin.shell: |
+    #     curl -fsSL https://pyenv.run | bash 
+    #   args:
+    #     executable: /bin/bash
+    #     chdir: "/home/{{ remote_regular_user }}"
+    #   tags: [pyenv]
+
+    - name: Install Node 
+      block:
+        - name: Remove old Node.js if installed
+          apt:
+            name: nodejs
+            state: absent
+            purge: yes
+          become: yes
+
+        - name: Remove leftover node and npm binaries if present
+          file:
+            path: "{{ item }}"
+            state: absent
+          loop:
+            - /usr/bin/node
+            - /usr/bin/npm
+          become: yes
+
+        - name: Add NodeSource Node.js 18 repo setup script
+          ansible.builtin.get_url:
+            url: https://deb.nodesource.com/setup_18.x
+            dest: /tmp/nodesource_setup.sh
+            mode: '0755'
+          become: yes
+
+        - name: Run NodeSource setup script
+          command: bash /tmp/nodesource_setup.sh
+          become: yes
+
+        - name: Install Node.js 18
+          apt:
+            name: nodejs
+            state: present
+            update_cache: yes
+          become: yes
+
+      rescue:
+        - name: Fail with message if block fails
+          fail:
+            msg: "Failed to install Node.js 18"
+
+    - name: Install Terraform from HashiCorp repository
+      block:
+        - name: Add HashiCorp GPG key
+          ansible.builtin.apt_key:
+            url: https://apt.releases.hashicorp.com/gpg
+            state: present
+          become: yes
+
+        - name: Add HashiCorp APT repository (dynamic and correct)
+          apt_repository:
+            repo: "deb [arch=amd64] https://apt.releases.hashicorp.com {{ ansible_lsb.codename | lower }} main"
+            filename: hashicorp
+            state: present
+          become: yes
+
+        - name: Update APT package index
+          ansible.builtin.apt:
+            update_cache: yes
+          become: yes
+
+        - name: Install Terraform
+          ansible.builtin.apt:
+            name: terraform
+            state: present
+          become: yes
+
+      rescue:
+        - name: Fail if Terraform installation fails
+          ansible.builtin.fail:
+            msg: "Terraform installation failed!"
+

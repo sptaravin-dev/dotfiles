@@ -3,8 +3,8 @@
 set -o vi
 setopt NO_CLOBBER
 
-export VISUAL=vim
-export EDITOR=vim
+export VISUAL=nvim
+export EDITOR=nvim
 export TERM="tmux-256color"
 
 # ~~~~~~~~~~~~~~~ Aliases ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -12,7 +12,7 @@ export TERM="tmux-256color"
 
 alias v=nvim
 alias cl='clear'
-alias zshrc='vim $ZDOTDIR/.zshrc'
+alias zshrc='v $ZDOTDIR/.zshrc'
 alias zshrcs='source $ZDOTDIR/.zshrc'
 alias cz='chezmoi'
 alias lg='lazygit'
