@@ -222,23 +222,13 @@
       become: true
       tags: [lazygit]
 
-    - name: Install Eza
-      shell: |
-        wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
-        echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/gierens.list
-        apt update
-        apt install -y eza
-      when: ansible_os_family == "Debian"
-            
-    - name: Install Pyenv
-      become: false
-      become_user: "{{ remote_regular_user }}"
-      ansible.builtin.shell: |
-        curl -fsSL https://pyenv.run | bash 
-      args:
-        executable: /bin/bash
-        chdir: "/home/{{ remote_regular_user }}"
-      tags: [pyenv]
+    # - name: Install Eza
+    #   shell: |
+    #     wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+    #     echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/gierens.list
+    #     apt update
+    #     apt install -y eza
+    #   when: ansible_os_family == "Debian"
 
     - name: Install Node 
       block:
@@ -311,4 +301,33 @@
         - name: Fail if Terraform installation fails
           ansible.builtin.fail:
             msg: "Terraform installation failed!"
+
+    - name: Install DevPod binary
+      block:
+        - name: Download devpod binary
+          ansible.builtin.get_url:
+            url: https://github.com/loft-sh/devpod/releases/latest/download/devpod-linux-amd64
+            dest: /tmp/devpod
+            mode: '0755'
+
+        - name: Move devpod to /usr/local/bin
+          ansible.builtin.command:
+            cmd: install -c -m 0755 /tmp/devpod /usr/local/bin/devpod
+          become: true
+
+        - name: Remove the temporary devpod file
+          ansible.builtin.file:
+            path: /tmp/devpod
+      when: ansible_os_family == "Debian"
+      tags: [devpod]
+            
+    - name: Install Pyenv
+      become: false
+      become_user: "{{ remote_regular_user }}"
+      ansible.builtin.shell: |
+        curl -fsSL https://pyenv.run | bash 
+      args:
+        executable: /bin/bash
+        chdir: "/home/{{ remote_regular_user }}"
+      tags: [pyenv]
 
