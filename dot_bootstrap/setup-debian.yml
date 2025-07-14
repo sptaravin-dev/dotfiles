@@ -35,14 +35,23 @@
           - libxmlsec1-dev
           - libffi-dev
           - liblzma-dev
+          - bat
         state: present
         update_cache: yes
       when: ansible_os_family == "Debian"
 
-    - name: Change shell to zsh
+    - name: Create symlink from /usr/bin/batcat to /usr/local/bin/bat
+      file:
+        src: /usr/bin/batcat
+        dest: /usr/local/bin/bat
+        state: link
+        force: true
+      when: ansible_os_family == "Debian"
+
+    - name: Change shell to nushell
       ansible.builtin.user:
         name: "{{ remote_regular_user }}"
-        shell: /usr/bin/zsh
+        shell: /usr/bin/nu
 
     - name: Create SSH key
       block:
@@ -212,6 +221,14 @@
             remote_src: yes
       become: true
       tags: [lazygit]
+
+    - name: Install Eza
+      shell: |
+        wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+        echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/gierens.list
+        apt update
+        apt install -y eza
+      when: ansible_os_family == "Debian"
             
     - name: Install Pyenv
       become: false
