@@ -22,8 +22,7 @@ alias lt = eza --tree --level=2 --long --icons --git
 alias cz = chezmoi
 alias lg = lazygit
 
-use $ENV_DIR starship STARSHIP_INIT_PATH
-use $STARSHIP_INIT_PATH
-hide STARSHIP_INIT_PATH
+mkdir ($nu.data-dir | path join "vendor/autoload")
+starship init nu | save -f ($nu.data-dir | path join "vendor/autoload/starship.nu")
 $env.PROMPT_INDICATOR_VI_INSERT = { "" }
 $env.PROMPT_INDICATOR_VI_NORMAL = { "| " }
