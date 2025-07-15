@@ -1,3 +1,6 @@
 [user]
-    name = Aravinth Tamilarasan
-    email = sptaravin.dev@gmail.com
+	name = sptaravin-dev
+	email = sptaravin.dev@gmail.com
+	signingkey = 6D46AA7D6E71EE7C
+[commit]
+	gpgsign = true
