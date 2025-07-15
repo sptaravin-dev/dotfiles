@@ -330,7 +330,7 @@
       vars:
         gpg_generator_user: "{{ remote_regular_user }}"
         gpg_user: "{{ remote_regular_user }}"
-        gpg_realname: "Aravinth Tamilarasan "
+        gpg_realname: "sptaravin-dev"
         gpg_useremail: "sptaravin.dev@gmail.com"
         gpg_passphrase: ""   # empty passphrase if you want
         gpg_expire: "1y"
