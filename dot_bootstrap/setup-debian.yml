@@ -334,20 +334,30 @@
       when: ansible_os_family == "Debian"
       tags: [devpod]
 
-    - name: Generate GPG key with juju4.gpgkey_generate role
-      import_role:
-        name: juju4.gpgkey_generate
-      vars:
-        gpg_generator_user: "{{ remote_regular_user }}"
-        gpg_user: "{{ remote_regular_user }}"
-        gpg_realname: "sptaravin-dev"
-        gpg_useremail: "sptaravin.dev@gmail.com"
-        gpg_passphrase: ""   # empty passphrase if you want
-        gpg_expire: "1y"
-        gpg_pubkeyfile: "{{ remote_regular_user }}.pub"
-        gpg_privkeyfile: "{{ remote_regular_user }}.priv"
-        gpg_algo: "rsa4096"
+    - name: Create GPG Key
+      block: 
+        - name: Ensure custom GPG home directory exists
+          file:
+            path: "/home/{{ gpg_generator_user }}/gnupg"
+            state: directory
+            owner: "{{ remote_regular_user }}"
+            group: "{{ remote_regular_user }}"
+            mode: '0700'
 
+        - name: Generate GPG key with juju4.gpgkey_generate role
+          import_role:
+            name: juju4.gpgkey_generate
+          vars:
+            gpg_generator_user: "{{ remote_regular_user }}"
+            gpg_home: "/home/{{ gpg_generator_user }}/gnupg"
+            gpg_user: "{{ remote_regular_user }}"
+            gpg_realname: "sptaravin-dev"
+            gpg_useremail: "sptaravin.dev@gmail.com"
+            gpg_passphrase: ""   # empty passphrase if you want
+            gpg_expire: "1y"
+            gpg_pubkeyfile: "{{ remote_regular_user }}.pub"
+            gpg_privkeyfile: "{{ remote_regular_user }}.priv"
+            gpg_algo: "rsa4096"
       tags: [gpg]
 
     - name: Install Pyenv
