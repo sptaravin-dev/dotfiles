@@ -5,10 +5,13 @@
   connection: local
   vars:
     zsh_config_dir: "/home/{{ remote_regular_user }}/.config/zsh"
+
   tasks:
+
     - name: Get my user
       ansible.builtin.set_fact:
         remote_regular_user: "{{ ansible_env.SUDO_USER or ansible_user_id }}"
+
     - name: Install Packages
       ansible.builtin.apt:
         name:
@@ -320,7 +323,23 @@
             path: /tmp/devpod
       when: ansible_os_family == "Debian"
       tags: [devpod]
-            
+
+    - name: Generate GPG key with juju4.gpgkey_generate role
+      import_role:
+        name: juju4.gpgkey_generate
+      vars:
+        gpg_generator_user: "{{ remote_regular_user }}"
+        gpg_user: "{{ remote_regular_user }}"
+        gpg_realname: "Aravinth Tamilarasan "
+        gpg_useremail: "sptaravin.dev@gmail.com"
+        gpg_passphrase: ""   # empty passphrase if you want
+        gpg_expire: "1y"
+        gpg_pubkeyfile: "{{ remote_regular_user }}.pub"
+        gpg_privkeyfile: "{{ remote_regular_user }}.priv"
+        gpg_algo: "rsa4096"
+
+      tags: [gpg]
+
     - name: Install Pyenv
       become: false
       become_user: "{{ remote_regular_user }}"
