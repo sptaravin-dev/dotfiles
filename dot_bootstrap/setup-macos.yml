@@ -4,7 +4,9 @@
   become: true
   connection: local
   vars:
-    zsh_config_dir: "/home/{{ remote_regular_user }}/.config/zsh"
+    zsh_config_dir: "/Users/{{ remote_regular_user }}/.config/zsh"
+    gpg_homedir: "/Users/{{ remote_regular_user }}/.config/gnupg"
+    gpg_batch_file: "{{ gpg_homedir }}/gpg_batch.cfg"
 
   tasks:
     - name: Get my user
@@ -59,3 +61,36 @@
             group: "staff"
             mode: '0600'
       tags: [ssh, github]
+
+    - name: Create GPG Key
+      become: false
+      block: 
+        - name: Ensure custom GPG home directory exists
+          file:
+            path: "{{ gpg_homedir }}"
+            state: directory
+            owner: "{{ remote_regular_user }}"
+            group: "staff"
+            mode: '0700'
+
+        - name: Create GPG batch config file
+          copy:
+            content: |
+              Key-Type: RSA
+              Key-Length: 4096
+              Name-Real: sptaravin-dev
+              Name-Email: sptaravin.dev@gmail.com
+              Expire-Date: 0
+              %no-protection
+              %commit
+            dest: "{{ gpg_batch_file }}"
+            mode: "0600"
+
+        - name: Generate GPG key
+          command: >
+            gpg --batch --generate-key {{ gpg_batch_file }}
+          environment:
+            GNUPGHOME: "{{ gpg_homedir }}"
+          args:
+            creates: "{{ gpg_homedir }}/pubring.kbx"
+      tags: [gpg]

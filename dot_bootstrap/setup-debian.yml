@@ -76,18 +76,18 @@
             group: "{{ remote_regular_user }}"
             mode: '0600'
 
-    - name: Create SSH config for GitHub
-      ansible.builtin.copy:
-        dest: /home/{{ remote_regular_user }}/.ssh/config
-        content: |
-          Host github.com
-              HostName github.com
-              User git
-              IdentityFile ~/.ssh/id_ed25519.sptaravin-dev.github.{{ remote_regular_user }}
-              IdentitiesOnly yes
-        owner: "{{ remote_regular_user }}"
-        group: "{{ remote_regular_user }}"
-        mode: '0600'
+        - name: Create SSH config for GitHub
+          ansible.builtin.copy:
+            dest: /home/{{ remote_regular_user }}/.ssh/config
+            content: |
+              Host github.com
+                  HostName github.com
+                  User git
+                  IdentityFile ~/.ssh/id_ed25519.sptaravin-dev.github.{{ remote_regular_user }}
+                  IdentitiesOnly yes
+            owner: "{{ remote_regular_user }}"
+            group: "{{ remote_regular_user }}"
+            mode: '0600'
       tags: [ssh, github]
 
     - name: Install Neovim
@@ -338,7 +338,7 @@
       block: 
         - name: Ensure custom GPG home directory exists
           file:
-            path: "/home/{{ gpg_generator_user }}/gnupg"
+            path: "/home/{{ gpg_generator_user }}/.config/gnupg"
             state: directory
             owner: "{{ remote_regular_user }}"
             group: "{{ remote_regular_user }}"
@@ -349,7 +349,7 @@
             name: juju4.gpgkey_generate
           vars:
             gpg_generator_user: "{{ remote_regular_user }}"
-            gpg_home: "/home/{{ gpg_generator_user }}/gnupg"
+            gpg_home: "/home/{{ gpg_generator_user }}/.config/gnupg"
             gpg_user: "{{ remote_regular_user }}"
             gpg_realname: "sptaravin-dev"
             gpg_useremail: "sptaravin.dev@gmail.com"
