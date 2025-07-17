@@ -42,6 +42,7 @@ eval "$(ssh-agent -s)"
 
 # ~~~~~~~~~~~~~~~ path ~~~~~~~~~~~~~~~~~~~~~~~~
 export PATH=$PATH:/usr/local/go/bin
+export PATH="/opt/nvim/bin:$PATH"
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 
