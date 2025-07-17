@@ -94,3 +94,21 @@
           args:
             creates: "{{ gpg_homedir }}/pubring.kbx"
       tags: [gpg]
+
+    - name: Install DevPod binary
+      block:
+        - name: Download devpod binary
+          ansible.builtin.get_url:
+            url: https://github.com/loft-sh/devpod/releases/latest/download/devpod-darwin-arm64
+            dest: /tmp/devpod
+            mode: '0755'
+
+        - name: Move devpod to /usr/local/bin
+          ansible.builtin.command:
+            cmd: install -c -m 0755 /tmp/devpod /usr/local/bin/devpod
+          become: true
+
+        - name: Remove the temporary devpod file
+          ansible.builtin.file:
+            path: /tmp/devpod
+      tags: [devpod]
