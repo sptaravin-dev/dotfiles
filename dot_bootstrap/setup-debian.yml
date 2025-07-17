@@ -5,12 +5,9 @@
   connection: local
   vars:
     zsh_config_dir: "/home/{{ remote_regular_user }}/.config/zsh"
+    remote_regular_user: "{{ ansible_env.SUDO_USER or ansible_user_id }}"
 
   tasks:
-
-    - name: Get my user
-      ansible.builtin.set_fact:
-        remote_regular_user: "{{ ansible_env.SUDO_USER or ansible_user_id }}"
 
     - name: Install APT Packages
       ansible.builtin.apt:
@@ -401,7 +398,7 @@
       block: 
         - name: Ensure custom GPG home directory exists
           file:
-            path: "/home/{{ gpg_generator_user }}/.config/gnupg"
+            path: "/home/{{ remote_regular_user }}/.config/gnupg"
             state: directory
             owner: "{{ remote_regular_user }}"
             group: "{{ remote_regular_user }}"
@@ -421,6 +418,8 @@
             gpg_pubkeyfile: "{{ remote_regular_user }}.pub"
             gpg_privkeyfile: "{{ remote_regular_user }}.priv"
             gpg_algo: "rsa4096"
+          become: yes
+          become_user: "{{ remote_regular_user }}"
       tags: [gpg]
 
     - name: Install Pyenv
