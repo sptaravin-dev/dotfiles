@@ -115,47 +115,51 @@
           args: 
             creates: /opt/nvim
           become: true
-      when: ansible_os_family == "Debian"
       tags: [nvim]
       
-    - name: Install Nushell (Debian-based only)
-      block:
-        - name: Ensure keyring directory exists
-          ansible.builtin.file:
-            path: /etc/apt/keyrings
-            state: directory
-            mode: '0755'
+    # - name: Install Nushell (Debian-based only)
+    #   block:
+    #     - name: Ensure keyring directory exists
+    #       ansible.builtin.file:
+    #         path: /etc/apt/keyrings
+    #         state: directory
+    #         mode: '0755'
 
-        - name: Download and dearmor the Nushell GPG key
-          ansible.builtin.shell: |
-            curl -fsSL https://apt.fury.io/nushell/gpg.key | gpg --dearmor -o /etc/apt/keyrings/fury-nushell.gpg
-          args:
-            creates: /etc/apt/keyrings/fury-nushell.gpg
+    #     - name: Download and dearmor the Nushell GPG key
+    #       ansible.builtin.shell: |
+    #         curl -fsSL https://apt.fury.io/nushell/gpg.key | gpg --dearmor -o /etc/apt/keyrings/fury-nushell.gpg
+    #       args:
+    #         creates: /etc/apt/keyrings/fury-nushell.gpg
 
-        - name: Add the Nushell APT repository
-          ansible.builtin.apt_repository:
-            repo: "deb [signed-by=/etc/apt/keyrings/fury-nushell.gpg] https://apt.fury.io/nushell/ /"
-            filename: fury-nushell
-            state: present
+    #     - name: Add the Nushell APT repository
+    #       ansible.builtin.apt_repository:
+    #         repo: "deb [signed-by=/etc/apt/keyrings/fury-nushell.gpg] https://apt.fury.io/nushell/ /"
+    #         filename: fury-nushell
+    #         state: present
 
-        - name: Update apt cache after adding Nushell repo
-          ansible.builtin.apt:
-            update_cache: yes
-            cache_valid_time: 3600
+    #     - name: Update apt cache after adding Nushell repo
+    #       ansible.builtin.apt:
+    #         update_cache: yes
+    #         cache_valid_time: 3600
 
-        - name: Install Nushell
-          ansible.builtin.apt:
-            name: nushell
-            state: present
+    #     - name: Install Nushell
+    #       ansible.builtin.apt:
+    #         name: nushell
+    #         state: present
 
-        - name: Set Nushell as the default shell
-          ansible.builtin.user:
-            name: "{{ remote_regular_user }}"
-            shell: /usr/bin/nu
+    #     - name: Set Nushell as the default shell
+    #       ansible.builtin.user:
+    #         name: "{{ remote_regular_user }}"
+    #         shell: /usr/bin/nu
 
-      when: ansible_facts['os_family'] == "Debian"
-      tags: [nushell]
-
+    #   when: ansible_facts['os_family'] == "Debian"
+    #   tags: [nushell]
+    
+    - name: Set zsh as the default shell
+      ansible.builtin.user:
+        name: "{{ remote_regular_user }}"
+        shell: /usr/bin/zsh
+        
     - name: Install Starship prompt
       ansible.builtin.shell: |
         curl -sS https://starship.rs/install.sh | sh -s -- -y
