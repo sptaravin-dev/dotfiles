@@ -4,7 +4,7 @@
   connection: local
   vars:
     zsh_config_dir: "/home/{{ remote_regular_user }}/.config/zsh"
-    remote_regular_user: "{{ ansible_env.SUDO_USER or ansible_user_id }}"
+    remote_regular_user: "{{ ansible_user_id }}"
     gpg_homedir: "/home/{{ remote_regular_user }}/.config/gnupg"
     gpg_batch_file: "{{ gpg_homedir }}/gpg_batch.cfg"
 
@@ -44,7 +44,7 @@
       when: ansible_os_family == "Debian"
 
     - name: Create symlink from /usr/bin/batcat to /usr/local/bin/bat
-      become true
+      become: true
       file:
         src: /usr/bin/batcat
         dest: /usr/local/bin/bat
@@ -52,12 +52,8 @@
         force: true
       when: ansible_os_family == "Debian"
 
-    - name: Change shell to nushell
-      ansible.builtin.user:
-        name: "{{ remote_regular_user }}"
-        shell: /usr/bin/nu
-
     - name: Create SSH key
+      become: true
       block:
         - name: create .ssh directory if needed
           ansible.builtin.file:
@@ -157,6 +153,7 @@
     #   tags: [nushell]
     
     - name: Set zsh as the default shell
+      become: true
       ansible.builtin.user:
         name: "{{ remote_regular_user }}"
         shell: /usr/bin/zsh
@@ -169,6 +166,7 @@
       tags: [starship]
 
     - name: Install Go (Debian-based only)
+      become: true
       block:
         - name: Get latest Go version string
           ansible.builtin.uri:
@@ -241,6 +239,7 @@
       tags: [lazygit]
 
     - name: Install Eza
+      become: true
       shell: |
         wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
         echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/gierens.list
@@ -444,10 +443,6 @@
     - name: Setup chezmoi Zsh completion (XDG-compliant)
       become: false
       block:
-        - name: Debug who is running this
-          debug:
-            msg: "Running as user {{ ansible_user_id }} with home {{ ansible_env.HOME }}"
-
         - name: Ensure chezmoi config directory exists
           file:
             path: "{{ ansible_env.XDG_CONFIG_HOME | default(ansible_env.HOME + '/.config') }}/chezmoi"
@@ -463,4 +458,24 @@
             dest: "{{ ansible_env.XDG_CONFIG_HOME | default(ansible_env.HOME + '/.config') }}/chezmoi/chezmoi-completion.zsh"
             content: "{{ chezmoi_completion.stdout }}"
             mode: '0644'
-      tags: [chezmoi]
+      tags: [chezmoi_completion]
+
+    - name: Setup devpod Zsh completion (XDG-compliant)
+      become: false
+      block:
+        - name: Ensure devpod config directory exists
+          file:
+            path: "{{ ansible_env.XDG_CONFIG_HOME | default(ansible_env.HOME + '/.config') }}/devpod"
+            state: directory
+            mode: '0755'
+
+        - name: Generate chezmoi zsh completion script
+          command: devpod completion zsh
+          register: devpod_completion
+
+        - name: Write devpod_completion zsh completion script to devpod-completion.zsh
+          copy:
+            dest: "{{ ansible_env.XDG_CONFIG_HOME | default(ansible_env.HOME + '/.config') }}/devpod/devpod-completion.zsh"
+            content: "{{ devpod_completion.stdout }}"
+            mode: '0644'
+      tags: [devpod_completion]
