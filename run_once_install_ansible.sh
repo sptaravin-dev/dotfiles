@@ -27,6 +27,8 @@ if [ -f "/.devcontainer.json" ] || [ "$DEVCONTAINER" = "true" ]; then
     echo "Ansible installation complete."
     exit 0
   else
+    echo "Non-Ubuntu DevContainer detected. Aborting."
+    exit 1
   fi
 else
   OS="$(uname -s)"
