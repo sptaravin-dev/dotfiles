@@ -1,7 +1,6 @@
 ---
 - name: Dotfiles Bootstrap Setup for Debian
   hosts: localhost
-  become: true
   connection: local
   vars:
     zsh_config_dir: "/home/{{ remote_regular_user }}/.config/zsh"
@@ -12,6 +11,7 @@
   tasks:
 
     - name: Install APT Packages
+      become: true
       ansible.builtin.apt:
         name:
           - curl
@@ -44,6 +44,7 @@
       when: ansible_os_family == "Debian"
 
     - name: Create symlink from /usr/bin/batcat to /usr/local/bin/bat
+      become true
       file:
         src: /usr/bin/batcat
         dest: /usr/local/bin/bat
@@ -440,3 +441,26 @@
         chdir: "/home/{{ remote_regular_user }}"
       tags: [pyenv]
 
+    - name: Setup chezmoi Zsh completion (XDG-compliant)
+      become: false
+      block:
+        - name: Debug who is running this
+          debug:
+            msg: "Running as user {{ ansible_user_id }} with home {{ ansible_env.HOME }}"
+
+        - name: Ensure chezmoi config directory exists
+          file:
+            path: "{{ ansible_env.XDG_CONFIG_HOME | default(ansible_env.HOME + '/.config') }}/chezmoi"
+            state: directory
+            mode: '0755'
+
+        - name: Generate chezmoi zsh completion script
+          command: chezmoi completion zsh
+          register: chezmoi_completion
+
+        - name: Write chezmoi zsh completion script to chezmoi-completion.zsh
+          copy:
+            dest: "{{ ansible_env.XDG_CONFIG_HOME | default(ansible_env.HOME + '/.config') }}/chezmoi/chezmoi-completion.zsh"
+            content: "{{ chezmoi_completion.stdout }}"
+            mode: '0644'
+      tags: [chezmoi]
