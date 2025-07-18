@@ -1,0 +1,171 @@
+---
+- name: Dotfiles Bootstrap Setup for Debian
+  hosts: localhost
+  connection: local
+  vars:
+    zsh_config_dir: "/home/{{ remote_regular_user }}/.config/zsh"
+    remote_regular_user: "{{ ansible_user_id }}"
+    gpg_homedir: "/home/{{ remote_regular_user }}/.config/gnupg"
+    gpg_batch_file: "{{ gpg_homedir }}/gpg_batch.cfg"
+
+  tasks:
+
+    - name: Install APT Packages
+      become: true
+      ansible.builtin.apt:
+        name:
+          - curl
+          - git
+          - gnupg2
+          - pinentry-curses
+          - unzip
+          - zsh
+          - wget
+          - build-essential
+          - clang
+          - make  
+          - libssl-dev
+          - zlib1g-dev
+          - libbz2-dev
+          - libreadline-dev
+          - libsqlite3-dev
+          - llvm
+          - libncursesw5-dev
+          - xz-utils
+          - tk-dev
+          - libxml2-dev
+          - libxmlsec1-dev
+          - libffi-dev
+          - liblzma-dev
+          - bat
+          - python3-venv
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Create symlink from /usr/bin/batcat to /usr/local/bin/bat
+      become: true
+      file:
+        src: /usr/bin/batcat
+        dest: /usr/local/bin/bat
+        state: link
+        force: true
+      when: ansible_os_family == "Debian"
+
+    - name: Install Neovim
+      block:
+        - name: Download latest Neovim tarball
+          ansible.builtin.get_url:
+            url: https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+            dest: /tmp/nvim-linux-x86_64.tar.gz
+            mode: '0644'
+
+        - name: Remove /opt/nvim
+          ansible.builtin.command: rm -rf /opt/nvim
+          become: true
+
+        - name: Extract Neovim to /opt
+          ansible.builtin.unarchive:
+            src: /tmp/nvim-linux-x86_64.tar.gz
+            dest: /opt
+            remote_src: yes
+            creates: /opt/nvim
+          become: true
+
+        - name: Rename /opt/nvim-linux-x86_64 to /opt/nvim
+          ansible.builtin.command: mv /opt/nvim-linux-x86_64 /opt/nvim
+          args: 
+            creates: /opt/nvim
+          become: true
+      tags: [nvim]
+      
+    - name: Install Starship prompt
+      ansible.builtin.shell: |
+        curl -sS https://starship.rs/install.sh | sh -s -- -y
+      args:
+        creates: /usr/local/bin/starship
+      tags: [starship]
+
+    - name: Install Lazygit (Debian-based only)
+      block:
+        - name: Get latest Lazygit version
+          ansible.builtin.uri:
+            url: https://api.github.com/repos/jesseduffield/lazygit/releases/latest
+            return_content: true
+          register: lazygit_release
+        
+        - name: Extract Lazygit version
+          ansible.builtin.set_fact:
+            lazygit_version: "{{ lazygit_release.content | from_json | json_query('tag_name') | regex_replace('^v', '') }}"
+
+        - name: Download Lazygit tarball
+          ansible.builtin.get_url:
+            url: "https://github.com/jesseduffield/lazygit/releases/download/v{{ lazygit_version }}/lazygit_{{ lazygit_version }}_Linux_x86_64.tar.gz"
+            dest: /tmp/lazygit.tar.gz
+            mode: '0644'
+
+        - name: Extract Lazygit binary
+          ansible.builtin.unarchive:
+            src: /tmp/lazygit.tar.gz
+            dest: /tmp/
+            remote_src: yes
+            extra_opts: [--wildcards, "lazygit"]
+            creates: /tmp/lazygit
+
+        - name: Install Lazygit to /usr/local/bin
+          ansible.builtin.copy:
+            src: /tmp/lazygit
+            dest: /usr/local/bin/lazygit
+            mode: '0755'
+            remote_src: yes
+      become: true
+      tags: [lazygit]
+
+    - name: Install Eza
+      become: true
+      shell: |
+        wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+        echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/gierens.list
+        apt update
+        apt install -y eza
+      when: ansible_os_family == "Debian"
+
+    - name: Setup chezmoi Zsh completion (XDG-compliant)
+      become: false
+      block:
+        - name: Ensure chezmoi config directory exists
+          file:
+            path: "{{ ansible_env.XDG_CONFIG_HOME | default(ansible_env.HOME + '/.config') }}/chezmoi"
+            state: directory
+            mode: '0755'
+
+        - name: Generate chezmoi zsh completion script
+          command: chezmoi completion zsh
+          register: chezmoi_completion
+
+        - name: Write chezmoi zsh completion script to chezmoi-completion.zsh
+          copy:
+            dest: "{{ ansible_env.XDG_CONFIG_HOME | default(ansible_env.HOME + '/.config') }}/chezmoi/chezmoi-completion.zsh"
+            content: "{{ chezmoi_completion.stdout }}"
+            mode: '0644'
+      tags: [chezmoi_completion]
+
+    - name: Setup devpod Zsh completion (XDG-compliant)
+      become: false
+      block:
+        - name: Ensure devpod config directory exists
+          file:
+            path: "{{ ansible_env.XDG_CONFIG_HOME | default(ansible_env.HOME + '/.config') }}/devpod"
+            state: directory
+            mode: '0755'
+
+        - name: Generate chezmoi zsh completion script
+          command: devpod completion zsh
+          register: devpod_completion
+
+        - name: Write devpod_completion zsh completion script to devpod-completion.zsh
+          copy:
+            dest: "{{ ansible_env.XDG_CONFIG_HOME | default(ansible_env.HOME + '/.config') }}/devpod/devpod-completion.zsh"
+            content: "{{ devpod_completion.stdout }}"
+            mode: '0644'
+      tags: [devpod_completion]
