@@ -6,6 +6,8 @@
   vars:
     zsh_config_dir: "/home/{{ remote_regular_user }}/.config/zsh"
     remote_regular_user: "{{ ansible_env.SUDO_USER or ansible_user_id }}"
+    gpg_homedir: "/home/{{ remote_regular_user }}/.config/gnupg"
+    gpg_batch_file: "{{ gpg_homedir }}/gpg_batch.cfg"
 
   tasks:
 
@@ -395,34 +397,36 @@
       tags: [docker]
     
     - name: Create GPG Key
+      become: false
       block: 
         - name: Ensure custom GPG home directory exists
           file:
-            path: "/home/{{ remote_regular_user }}/.config/gnupg"
+            path: "{{ gpg_homedir }}"
             state: directory
             owner: "{{ remote_regular_user }}"
             group: "{{ remote_regular_user }}"
             mode: '0700'
 
-        - name: Generate GPG key with juju4.gpgkey_generate role
-          import_role:
-            name: juju4.gpgkey_generate
-          vars:
-            gpg_generator_user: "{{ remote_regular_user }}"
-            gpg_home: "/home/{{ remote_regular_user }}/.config/gnupg"
-            gpg_user: "{{ remote_regular_user }}"
-            gpg_realname: "sptaravin-dev"
-            gpg_useremail: "sptaravin.dev@gmail.com"
-            gpg_passphrase: ""   # empty passphrase if you want
-            gpg_expire: "0"
-          become: yes
-          
-        - name: Trust GPG key
-          ansible.builtin.shell: |
-            echo -e "5\ny\n" | gpg --homedir=/home/{{ remote_regular_user }}/.config/gnupg \
-                                   --command-fd 0 --edit-key {{ gpg_useremail }} trust quit
-          become: yes
-          become_user: "{{ remote_regular_user }}"
+        - name: Create GPG batch config file
+          copy:
+            content: |
+              Key-Type: RSA
+              Key-Length: 4096
+              Name-Real: sptaravin-dev
+              Name-Email: sptaravin.dev@gmail.com
+              Expire-Date: 0
+              %no-protection
+              %commit
+            dest: "{{ gpg_batch_file }}"
+            mode: "0600"
+
+        - name: Generate GPG key
+          command: >
+            gpg --batch --generate-key {{ gpg_batch_file }}
+          environment:
+            GNUPGHOME: "{{ gpg_homedir }}"
+          args:
+            creates: "{{ gpg_homedir }}/pubring.kbx"
       tags: [gpg]
 
     - name: Install Pyenv
