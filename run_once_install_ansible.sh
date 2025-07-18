@@ -1,54 +1,53 @@
 #!/bin/bash
-set -euo pipefail
+
+is_devcontainer() {
+  # You can customize this logic as needed
+  if [ "$DEVCONTAINER" = "true" ] || [ -n "$CODESPACES" ]; then
+    return 0
+  elif grep -q 'vscode' /etc/passwd 2>/dev/null && [ -d /workspaces ]; then
+    return 0
+  elif grep -qi 'devcontainer' /etc/hostname 2>/dev/null; then
+    return 0
+  fi
+  return 1
+}
 
 install_on_ubuntu() {
   sudo apt-get update
   sudo apt-get install -y ansible
-  ansible-playbook ~/.bootstrap/setup-debian.yml --ask-become-pass -vv
+  ansible-galaxy install juju4.gpgkey_generate
+  if is_devcontainer; then
+    echo "Detected DevContainer: running setup-devcontainer.yml"
+    ansible-playbook ~/.bootstrap/setup-devcontainer.yml --ask-become-pass -vv
+  else
+    echo "Running setup-debian.yml"
+    ansible-playbook ~/.bootstrap/setup-debian.yml --ask-become-pass -vv
+  fi
 }
 
 install_on_mac() {
   brew install ansible
+  ansible-galaxy install juju4.gpgkey_generate
   ansible-playbook ~/.bootstrap/setup-macos.yml --ask-become-pass -vv
 }
 
-install_on_devcontainer() {
-  sudo apt-get update
-  sudo apt-get install -y ansible
-  ansible-playbook ~/.bootstrap/setup-devcontainer.yml --ask-become-pass -vv
-}
-
-if [ -f "/.devcontainer.json" ] || [ "${DEVCONTAINER:-}" = "true" ]; then
-  echo "Installing inside a DevContainer"
-
-  if grep -qi ubuntu /etc/os-release; then
-    echo "Confirmed: Ubuntu-based DevContainer"
-    install_on_devcontainer
-    echo "Ansible installation complete."
-    exit 0
+OS="$(uname -s)"
+case "${OS}" in
+Linux*)
+  if [ -f /etc/lsb-release ]; then
+    install_on_ubuntu
   else
-    echo "Non-Ubuntu DevContainer detected. Aborting."
+    echo "Unsupported Linux distribution"
     exit 1
   fi
-else
-  OS="$(uname -s)"
-  case "${OS}" in
-  Linux*)
-    if [ -f /etc/lsb-release ]; then
-      install_on_ubuntu
-    else
-      echo "Unsupported Linux distribution"
-      exit 1
-    fi
-    ;;
-  Darwin*)
-    install_on_mac
-    ;;
-  *)
-    echo "Unsupported operating system: ${OS}"
-    exit 1
-    ;;
-  esac
+  ;;
+Darwin*)
+  install_on_mac
+  ;;
+*)
+  echo "Unsupported operating system: ${OS}"
+  exit 1
+  ;;
+esac
 
-  echo "Ansible installation complete."
-fi
+echo "Ansible installation complete."
