@@ -18,7 +18,7 @@ install_on_devcontainer() {
   ansible-playbook ~/.bootstrap/setup-devcontainer.yml --ask-become-pass -vv
 }
 
-if [ -f "/.devcontainer.json" ] || [ "$DEVCONTAINER" = "true" ]; then
+if [ -f "/.devcontainer.json" ] || [ "${DEVCONTAINER:-}" = "true" ]; then
   echo "Installing inside a DevContainer"
 
   if grep -qi ubuntu /etc/os-release; then
