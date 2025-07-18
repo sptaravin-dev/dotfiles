@@ -409,15 +409,12 @@
             name: juju4.gpgkey_generate
           vars:
             gpg_generator_user: "{{ remote_regular_user }}"
-            gpg_home: "/home/{{ gpg_generator_user }}/.config/gnupg"
+            gpg_home: "/home/{{ remote_regular_user }}/.config/gnupg"
             gpg_user: "{{ remote_regular_user }}"
             gpg_realname: "sptaravin-dev"
             gpg_useremail: "sptaravin.dev@gmail.com"
             gpg_passphrase: ""   # empty passphrase if you want
-            gpg_expire: "1y"
-            gpg_pubkeyfile: "{{ remote_regular_user }}.pub"
-            gpg_privkeyfile: "{{ remote_regular_user }}.priv"
-            gpg_algo: "rsa4096"
+            gpg_expire: "0"
           become: yes
           
         - name: Trust GPG key
