@@ -419,6 +419,13 @@
             gpg_privkeyfile: "{{ remote_regular_user }}.priv"
             gpg_algo: "rsa4096"
           become: yes
+          
+        - name: Trust GPG key
+          ansible.builtin.shell: |
+            echo -e "5\ny\n" | gpg --homedir=/home/{{ remote_regular_user }}/.config/gnupg \
+                                   --command-fd 0 --edit-key {{ gpg_useremail }} trust quit
+          become: yes
+          become_user: "{{ remote_regular_user }}"
       tags: [gpg]
 
     - name: Install Pyenv
