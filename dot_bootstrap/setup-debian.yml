@@ -40,7 +40,6 @@
           - bat
         state: present
         update_cache: yes
-      when: ansible_os_family == "Debian"
 
     - name: Create symlink from /usr/bin/batcat to /usr/local/bin/bat
       file:
