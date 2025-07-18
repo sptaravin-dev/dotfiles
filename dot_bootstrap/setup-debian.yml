@@ -419,7 +419,6 @@
             gpg_privkeyfile: "{{ remote_regular_user }}.priv"
             gpg_algo: "rsa4096"
           become: yes
-          become_user: "{{ remote_regular_user }}"
       tags: [gpg]
 
     - name: Install Pyenv
