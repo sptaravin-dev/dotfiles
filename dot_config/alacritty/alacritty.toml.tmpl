@@ -1,11 +1,14 @@
 {{ if and (eq .chezmoi.os "linux") (contains "microsoft" .chezmoi.kernel.osrelease) }}
-[shell]
-program = "wsl"
-args = ["-d", "Ubuntu-22.04"]
+[terminal]
+shell = { program = "wsl", args = ["-d", "Ubuntu-22.04", "--exec", "zsh", "-l"] }
 {{ end }}
 
-font:
-  normal:
-    family: "FiraCode Nerd Font"
-    style: Regular
-  size: 13.0
+[window]
+padding.x = 16
+padding.y = 14
+decorations = "none" # Removes the window decoration (title bar, etc.)
+
+[font]
+normal = { family = "FiraMono Nerd Font Mono", style = "Regular" }
+size = 12
+
