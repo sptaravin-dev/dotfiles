@@ -1,0 +1,11 @@
+{{ if and (eq .chezmoi.os "linux") (contains .chezmoi.kernel.osrelease "microsoft") }}
+[shell]
+program = "wsl"
+args = ["-d", "Ubuntu-22.04"]
+{{ end }}
+
+font:
+  normal:
+    family: "FiraCode Nerd Font"
+    style: Regular
+  size: 11.0

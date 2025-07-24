@@ -432,16 +432,6 @@
             creates: "{{ gpg_homedir }}/pubring.kbx"
       tags: [gpg]
 
-    - name: Install Pyenv
-      become: false
-      become_user: "{{ remote_regular_user }}"
-      ansible.builtin.shell: |
-        curl -fsSL https://pyenv.run | bash 
-      args:
-        executable: /bin/bash
-        chdir: "/home/{{ remote_regular_user }}"
-      tags: [pyenv]
-
     - name: Setup chezmoi Zsh completion (XDG-compliant)
       become: false
       block:
@@ -481,3 +471,13 @@
             content: "{{ devpod_completion.stdout }}"
             mode: '0644'
       tags: [devpod_completion]
+
+    - name: Install Pyenv
+      become: false
+      become_user: "{{ remote_regular_user }}"
+      ansible.builtin.shell: |
+        curl -fsSL https://pyenv.run | bash 
+      args:
+        executable: /bin/bash
+        chdir: "/home/{{ remote_regular_user }}"
+      tags: [pyenv]
