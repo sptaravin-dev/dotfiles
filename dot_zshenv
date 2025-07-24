@@ -10,6 +10,9 @@ export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 # gnupg HOME
 export GNUPGHOME="$XDG_CONFIG_HOME/gnupg"
 
+# starship HOME
+export STARSHIP_CONFIG=~/.config/starship/starship.toml
+
 # add bin path
 export PATH="$HOME/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
