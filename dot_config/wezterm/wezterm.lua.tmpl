@@ -11,6 +11,9 @@ config.default_domain = "WSL:Ubuntu-22.04"
 config.font = wezterm.font("FiraCode Nerd Font Mono Med")
 config.font_size = 12
 
+-- disable tab bar
+config.enable_tab_bar = false
+
 -- Kanso Ink color
 
 config.force_reverse_video_cursor = true
@@ -50,6 +53,8 @@ config.colors = {
 		"#C5C9C7",
 	},
 }
+
+config.window_decorations = "RESIZE"
 
 -- Finally, return the configuration to wezterm:
 return config
