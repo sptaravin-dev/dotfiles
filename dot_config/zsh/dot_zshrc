@@ -16,7 +16,8 @@ alias zshrc='v $ZDOTDIR/.zshrc'
 alias zshrcs='source $ZDOTDIR/.zshrc'
 alias cz='chezmoi'
 alias lg='lazygit'
-alias tkt='./scripts/run-docker.sh -m'
+alias dps='docker ps'
+alias di='docker image'
 
 # ls
 alias ls='ls --color=auto'
