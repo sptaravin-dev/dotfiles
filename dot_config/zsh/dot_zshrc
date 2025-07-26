@@ -28,6 +28,7 @@ alias l="eza -l --icons --git -a"
 alias lt="eza --tree --level=2 --long --icons --git"
 alias ltree="eza --tree --level=2  --icons --git"
 alias wezcp="cp ~/.config/wezterm/wezterm.lua /mnt/c/Users/sptar/.wezterm.lua"
+alias fd='fdfind'
 
 # ~~~~~~~~~~~~~~~ Theme ~~~~~~~~~~~~~~~~~~~~~~~~
 # Load Starship prompt

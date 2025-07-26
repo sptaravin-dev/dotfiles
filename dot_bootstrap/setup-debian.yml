@@ -42,6 +42,7 @@
           - fzf
           - zsh-syntax-highlighting
           - zsh-autosuggestions
+          - fd-find
         state: present
         update_cache: yes
       when: ansible_os_family == "Debian"
