@@ -2,3 +2,4 @@
 .config/nvim/lazyvim.json
 .config/nvim/.neoconf.json
 .config/nushell/history.txt
+.config/zsh/.zcompdump
