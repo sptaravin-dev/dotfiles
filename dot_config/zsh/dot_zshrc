@@ -36,6 +36,7 @@ eval "$(starship init zsh)"
 
 source "$XDG_CONFIG_HOME/chezmoi/chezmoi-completion.zsh"
 compdef cz=chezmoi
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # ~~~~~~~~~~~~~~~ ssh ~~~~~~~~~~~~~~~~~~~~~~~~
 eval "$(ssh-agent -s)"
@@ -55,4 +56,3 @@ fi
 # ~~~~~~~~~~~~~~~ color ~~~~~~~~~~~~~~~~~~~~~~~~
 # This is necessary for alacritty
 export TERM=xterm-256color
-

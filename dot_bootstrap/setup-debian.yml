@@ -40,6 +40,7 @@
           - bat
           - python3-venv
           - fzf
+          - zsh-syntax-highlighting
         state: present
         update_cache: yes
       when: ansible_os_family == "Debian"
