@@ -8,7 +8,7 @@ error_symbol = "[❯](#e27878 bold)"
 style = "#e2a478 bold"
 
 [directory]
-style = "#7fc7d9"
+style = "#8FBCBB"
 read_only = " 󰌾"
 
 [git_branch]
