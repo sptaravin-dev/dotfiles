@@ -3,3 +3,4 @@
 .config/nvim/.neoconf.json
 .config/nushell/history.txt
 .config/zsh/.zcompdump
+.config/tmux/plugins
