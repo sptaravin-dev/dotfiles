@@ -43,6 +43,7 @@
           - zsh-syntax-highlighting
           - zsh-autosuggestions
           - fd-find
+          - tmux
         state: present
         update_cache: yes
       when: ansible_os_family == "Debian"
