@@ -33,6 +33,9 @@
           - lazygit
           - node
           - pyenv
+          - zsh-syntax-highlighting
+          - zsh-autosuggestions
+          - ripgrep
         state: present
       when: ansible_facts['os_family'] == "Darwin"
       become: false
