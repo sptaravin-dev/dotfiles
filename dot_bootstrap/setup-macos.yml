@@ -28,6 +28,9 @@
           - bat
           - wezterm
           - font-fira-code-nerd-font
+          - gnupg
+          - pinentry-mac
+          - lazygit
         state: present
       when: ansible_facts['os_family'] == "Darwin"
       become: false
