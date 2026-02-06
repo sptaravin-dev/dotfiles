@@ -38,6 +38,10 @@ eval "$(starship init zsh)"
 
 # ~~~~~~~~~~~~~~~ Autocompletion ~~~~~~~~~~~~~~~~~~~~~~~~
 
+# Load completion system early, before any compdef calls.
+autoload -Uz compinit
+compinit
+
 source "$XDG_CONFIG_HOME/chezmoi/chezmoi-completion.zsh"
 compdef cz=chezmoi
 
