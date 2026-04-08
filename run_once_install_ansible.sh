@@ -26,9 +26,9 @@ install_on_ubuntu() {
 }
 
 install_on_mac() {
-#  brew install ansible
-#  ansible-galaxy install juju4.gpgkey_generate
-#  ansible-playbook ~/.bootstrap/setup-macos.yml --ask-become-pass -vv
+  brew install ansible
+  ansible-galaxy install juju4.gpgkey_generate
+  ansible-playbook ~/.bootstrap/setup-macos.yml --ask-become-pass -vv
 }
 
 OS="$(uname -s)"
