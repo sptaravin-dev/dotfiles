@@ -1,18 +1,25 @@
 return {
-  { "ellisonleao/gruvbox.nvim" },
-  { "catppuccin/nvim", name = "catppuccin", lazy = false },
-  { "cocopon/iceberg.vim" },
   {
-    "webhooked/kanso.nvim",
+    "shaunsingh/nord.nvim",
     lazy = false,
     priority = 1000,
   },
-
+  {
+    "AlexvZyl/nordic.nvim",
+    lazy = false,
+    priority = 1000,
+  },
+  {
+    "thesimonho/kanagawa-paper.nvim",
+    lazy = false,
+    priority = 1000,
+    opts = {},
+  },
   -- Configure LazyVim to load colorscheme
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "kanso-ink",
+      colorscheme = "kanagawa-paper-ink",
     },
   },
 }

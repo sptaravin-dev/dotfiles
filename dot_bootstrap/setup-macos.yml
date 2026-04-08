@@ -36,92 +36,106 @@
           - zsh-syntax-highlighting
           - zsh-autosuggestions
           - ripgrep
+          - tmux
+          - zoxide
+          - yazi
+          - htop
         state: present
       when: ansible_facts['os_family'] == "Darwin"
       become: false
       tags: [brew]
 
-    - name: Create SSH key
-      block:
-        - name: create .ssh directory if needed
-          ansible.builtin.file:
-            path: /Users/{{ remote_regular_user }}/.ssh
-            state: directory
-            mode: '0700'
-            owner: "{{ remote_regular_user }}"
-            group: "staff"
-
-        - name: gen SSH key
-          community.crypto.openssh_keypair:
-            path: "/Users/{{ remote_regular_user }}/.ssh/id_ed25519.sptaravin-dev.github.{{ remote_regular_user }}"
-            type: ed25519
-            force: false
-            comment: "sptaravin.dev@gmail.com"
-            owner: "{{ remote_regular_user }}"
-            group: "staff"
-            mode: '0600'
-
-        - name: Create SSH config for GitHub
-          ansible.builtin.copy:
-            dest: /Users/{{ remote_regular_user }}/.ssh/config
-            content: |
-              Host github.com
-                  HostName github.com
-                  User git
-                  IdentityFile ~/.ssh/id_ed25519.sptaravin-dev.github.{{ remote_regular_user }}
-                  IdentitiesOnly yes
-            owner: "{{ remote_regular_user }}"
-            group: "staff"
-            mode: '0600'
-      tags: [ssh, github]
-
-    - name: Create GPG Key
-      become: false
-      block: 
-        - name: Ensure custom GPG home directory exists
-          file:
-            path: "{{ gpg_homedir }}"
-            state: directory
-            owner: "{{ remote_regular_user }}"
-            group: "staff"
-            mode: '0700'
-
-        - name: Create GPG batch config file
-          copy:
-            content: |
-              Key-Type: RSA
-              Key-Length: 4096
-              Name-Real: sptaravin-dev
-              Name-Email: sptaravin.dev@gmail.com
-              Expire-Date: 0
-              %no-protection
-              %commit
-            dest: "{{ gpg_batch_file }}"
-            mode: "0600"
-
-        - name: Generate GPG key
-          command: >
-            gpg --batch --generate-key {{ gpg_batch_file }}
-          environment:
-            GNUPGHOME: "{{ gpg_homedir }}"
-          args:
-            creates: "{{ gpg_homedir }}/pubring.kbx"
-      tags: [gpg]
-
-    - name: Install DevPod binary
-      block:
-        - name: Download devpod binary
-          ansible.builtin.get_url:
-            url: https://github.com/loft-sh/devpod/releases/latest/download/devpod-darwin-arm64
-            dest: /tmp/devpod
-            mode: '0755'
-
-        - name: Move devpod to /usr/local/bin
-          ansible.builtin.command:
-            cmd: install -c -m 0755 /tmp/devpod /usr/local/bin/devpod
-          become: true
-
-        - name: Remove the temporary devpod file
-          ansible.builtin.file:
-            path: /tmp/devpod
-      tags: [devpod]
+    # - name: Install Homebrew cask apps on macOS
+    #   community.general.homebrew_cask:
+    #     name:
+    #       - quarto
+    #     state: present
+    #   when: ansible_facts['os_family'] == "Darwin"
+    #   become: false
+    #   tags: [brew, cask]
+    #
+    #
+    # - name: Create SSH key
+    #   block:
+    #     - name: create .ssh directory if needed
+    #       ansible.builtin.file:
+    #         path: /Users/{{ remote_regular_user }}/.ssh
+    #         state: directory
+    #         mode: '0700'
+    #         owner: "{{ remote_regular_user }}"
+    #         group: "staff"
+    #
+    #     - name: gen SSH key
+    #       community.crypto.openssh_keypair:
+    #         path: "/Users/{{ remote_regular_user }}/.ssh/id_ed25519.sptaravin-dev.github.{{ remote_regular_user }}"
+    #         type: ed25519
+    #         force: false
+    #         comment: "sptaravin.dev@gmail.com"
+    #         owner: "{{ remote_regular_user }}"
+    #         group: "staff"
+    #         mode: '0600'
+    #
+    #     - name: Create SSH config for GitHub
+    #       ansible.builtin.copy:
+    #         dest: /Users/{{ remote_regular_user }}/.ssh/config
+    #         content: |
+    #           Host github.com
+    #               HostName github.com
+    #               User git
+    #               IdentityFile ~/.ssh/id_ed25519.sptaravin-dev.github.{{ remote_regular_user }}
+    #               IdentitiesOnly yes
+    #         owner: "{{ remote_regular_user }}"
+    #         group: "staff"
+    #         mode: '0600'
+    #   tags: [ssh, github]
+    #
+    # - name: Create GPG Key
+    #   become: false
+    #   block: 
+    #     - name: Ensure custom GPG home directory exists
+    #       file:
+    #         path: "{{ gpg_homedir }}"
+    #         state: directory
+    #         owner: "{{ remote_regular_user }}"
+    #         group: "staff"
+    #         mode: '0700'
+    #
+    #     - name: Create GPG batch config file
+    #       copy:
+    #         content: |
+    #           Key-Type: RSA
+    #           Key-Length: 4096
+    #           Name-Real: sptaravin-dev
+    #           Name-Email: sptaravin.dev@gmail.com
+    #           Expire-Date: 0
+    #           %no-protection
+    #           %commit
+    #         dest: "{{ gpg_batch_file }}"
+    #         mode: "0600"
+    #
+    #     - name: Generate GPG key
+    #       command: >
+    #         gpg --batch --generate-key {{ gpg_batch_file }}
+    #       environment:
+    #         GNUPGHOME: "{{ gpg_homedir }}"
+    #       args:
+    #         creates: "{{ gpg_homedir }}/pubring.kbx"
+    #   tags: [gpg]
+    #
+    # - name: Install DevPod binary
+    #   block:
+    #     - name: Download devpod binary
+    #       ansible.builtin.get_url:
+    #         url: https://github.com/loft-sh/devpod/releases/latest/download/devpod-darwin-arm64
+    #         dest: /tmp/devpod
+    #         mode: '0755'
+    #
+    #     - name: Move devpod to /usr/local/bin
+    #       ansible.builtin.command:
+    #         cmd: install -c -m 0755 /tmp/devpod /usr/local/bin/devpod
+    #       become: true
+    #
+    #     - name: Remove the temporary devpod file
+    #       ansible.builtin.file:
+    #         path: /tmp/devpod
+    #   tags: [devpod]

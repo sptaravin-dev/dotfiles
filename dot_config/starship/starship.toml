@@ -1,25 +1,27 @@
 # ~/.config/starship.toml
 
+
 [character]
-success_symbol = "[❯](#84a0c6 bold)"
-error_symbol = "[❯](#e27878 bold)"
+success_symbol = "[❯](#7E9CD8 bold)"   # Wave Blue
+error_symbol   = "[❯](#C34043 bold)"   # Autumn Red
 
 [cmd_duration]
-style = "#e2a478 bold"
+style = "#C0A36E bold"  # Autumn Yellow (less neon than peach)
 
 [directory]
-style = "#8FBCBB"
+style = "#D27E99"       # Sakura Pink
 read_only = " 󰌾"
 
 [git_branch]
-style = "#84a0c6"
+style = "#7E9CD8"       # Wave Blue
 
 [git_status]
-style = "#e69875"
+style = "#FF9E64"       # Peach (stands out but not aggressive)
 
 [hostname]
-style = "#d27e99"
+style = "#76946A"       # Autumn Green
 ssh_symbol = " "
+
 
 # the following are from starship presets https://starship.rs/presets/nerd-font
 [aws]
